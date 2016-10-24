@@ -1,0 +1,51 @@
+<!doctype html>
+
+<head>
+  <title>Using Web Workers for Image Loading</title>
+
+  <link href="/assets/app.css" rel="stylesheet">
+
+  <script async src="/assets/app.js"></script>
+</head>
+
+<body>
+  <h1>
+    Using Web Workers for Image Loading
+  </h1>
+
+  <p>This experiment will spin up a new web worker for each image on the page. Inside of the web worker, the image will be downloaded as a <code>Blob</code> via <code>XMLHttpRequest</code>, then read as a data URI via the <code>FileReader</code> API, and finally passed back to the main UI thread to be injected as the source of the original <code>img</code> element.</p>
+
+  <p>This works because the <code>img</code> element does not have a <code>src</code> attribute. Instead, we use <code>data-src</code>. This allows us to grab the sources to be passed to the web workers before the browser attempts to download them, preventing their loading from blocking other requests and the UI thread.</p>
+
+  <hr>
+
+  <div class="center-me">
+    <img data-src="/assets/images/leeeeezard.jpg">
+    <img data-src="/assets/images/potatoes-french-mourning-funny-162971.jpeg">
+    <img data-src="/assets/images/4323074263657971_img_5422.jpg">
+    <img data-src="/assets/images/apple-desk-laptop-working.jpg">
+    <img data-src="/assets/images/macbook-apple-imac-computer-39284.jpeg">
+    <img data-src="/assets/images/pexels-photo-101515.jpeg">
+    <img data-src="/assets/images/pexels-photo-106344.jpeg">
+    <img data-src="/assets/images/pexels-photo-108036.jpeg">
+    <img data-src="/assets/images/pexels-photo-115045.jpeg">
+    <img data-src="/assets/images/pexels-photo-127627.jpeg">
+    <img data-src="/assets/images/pexels-photo-168066.jpeg">
+    <img data-src="/assets/images/pexels-photo-168765.jpeg">
+    <img data-src="/assets/images/pexels-photo-169647.jpeg">
+    <img data-src="/assets/images/pexels-photo-169789.jpeg">
+    <img data-src="/assets/images/pexels-photo-169905.jpeg">
+    <img data-src="/assets/images/pexels-photo-169915.jpeg">
+    <img data-src="/assets/images/pexels-photo-27117.jpg">
+    <img data-src="/assets/images/pexels-photo-27665.jpg">
+    <img data-src="/assets/images/pexels-photo-52697.jpeg">
+    <img data-src="/assets/images/pexels-photo-64778.jpeg">
+    <img data-src="/assets/images/pexels-photo-87347.jpeg">
+    <img data-src="/assets/images/pexels-photo-92028.jpeg">
+    <img data-src="/assets/images/pexels-photo.jpg">
+    <img data-src="/assets/images/shutterstock_177534164-680x400.jpg">
+    <img data-src="/assets/images/startup-photos.jpg">
+  </div>
+
+  <progress max="0" value="0"></progress>
+</body>

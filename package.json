@@ -1,0 +1,16 @@
+{
+  "name": "elm-lawn-pto",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "koa": "^1.2.4",
+    "koa-logger": "^1.3.0",
+    "koa-static": "^2.0.0"
+  }
+}
