@@ -45,7 +45,7 @@ for (let i = 0; i < images.length; i++) {
   let imageSource = image.getAttribute('data-src')
 
   // Spin up a new worker
-  let worker = new Worker('/assets/workers/img-loader.js')
+  let worker = new Worker('assets/workers/img-loader.js')
 
   // Add the image's progress hash to the global progress hash so it can be
   // used for progress calculations
