@@ -7,6 +7,14 @@ let progress = {}
 // Grab the progress bar so we can update it when necessary
 let progressBar = document.querySelector('progress')
 
+// Grab the current URI to avoid path issues with relative URIs inside workers
+let baseURI = location.href
+
+// Add a trailing slash to the base URI if it doesn't have one
+if (!/\/$/.test(baseURI)) {
+  baseURI += '/'
+}
+
 
 
 
@@ -55,7 +63,7 @@ for (let i = 0; i < images.length; i++) {
   }
 
   // Tell the worker to start handling the image
-  worker.postMessage(imageSource)
+  worker.postMessage(baseURI + imageSource)
 
   // Listen for messages from the worker
   worker.addEventListener('message', event => {
