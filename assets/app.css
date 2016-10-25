@@ -15,6 +15,12 @@ body {
   padding: 2rem;
 }
 
+code {
+  background-color: lightgrey;
+  border-radius: 0.1rem;
+  padding: 0 0.3rem;
+}
+
 img {
   flex-grow: 1;
   flex-shrink: 1;
