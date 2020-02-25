@@ -15,6 +15,8 @@ if (!/\/$/.test(baseURI)) {
   baseURI += '/'
 }
 
+window.totalLoadTime = 0
+
 
 
 
@@ -39,67 +41,108 @@ let updateProgress = function updateProgress () {
 
 
 
-// Loop over the images, spin up web workers to handle downloading them, and
-// dump the web worker when it's done
-for (let i = 0; i < images.length; i++) {
-  // Grab the current time from the performance API for high definition
-  // performance tracking
-  let started = performance.now()
-
-  // Memoize the current image
-  let image = images[i]
-
-  // Grab the URL where the image lives
-  let imageSource = image.getAttribute('data-src')
-
-  // Spin up a new worker
-  let worker = new Worker('assets/workers/img-loader.js')
-
-  // Add the image's progress hash to the global progress hash so it can be
-  // used for progress calculations
-  progress[imageSource] = {
-    file: 0,
-    load: 0
+const startWithOutWorker = () => {
+  for (let i = 0; i < images.length; i++) {
+    let image = images[i]
+    image.src = image.getAttribute('data-src')
   }
+}
 
-  // Tell the worker to start handling the image
-  worker.postMessage(baseURI + imageSource)
 
-  // Listen for messages from the worker
-  worker.addEventListener('message', event => {
-    // The worker will always respond with JSON payloads, so we'll parse that
-    let data = JSON.parse(event.data)
 
-    // Memoize the value that's returned
-    let value = data.value
 
-    // Figure out what type of message this is
-    switch (data.type) {
 
-      // Update the progress of reading the file to a data URI
-      case 'progress-file':
-        progress[imageSource].file = value
-        updateProgress()
-        break
+const startWithWorker = () => {
+  window.totalLoadTime = 0
 
-      // Update the progress of loading the file
-      case 'progress-load':
-        progress[imageSource].load = value
-        updateProgress()
-        break
+  // Loop over the images, spin up web workers to handle downloading them, and
+  // dump the web worker when it's done
+  for (let i = 0; i < images.length; i++) {
+    // Grab the current time from the performance API for high definition
+    // performance tracking
+    let started = performance.now()
 
-      // We receive a result message when the file has been downloaded and read
-      // to a data URI
-      case 'result':
-        // Set the src of the img element so the image finally loads into the page
-        image.src = value
+    // Memoize the current image
+    let image = images[i]
 
-        // Tell the worker it should close when appropriate
-        worker.postMessage('close')
+    // Grab the URL where the image lives
+    let imageSource = image.getAttribute('data-src')
 
-        // Log out how long the load took for benchmarking purposes
-        console.log('Loaded ' + imageSource + ';', 'Load took ' + (performance.now() - started) + 'ms')
-        break
+    // Spin up a new worker
+    let worker = new Worker('assets/workers/img-loader.js')
+
+    // Add the image's progress hash to the global progress hash so it can be
+    // used for progress calculations
+    progress[imageSource] = {
+      file: 0,
+      load: 0
+    }
+
+    // Tell the worker to start handling the image
+    worker.postMessage(baseURI + imageSource)
+
+    // Listen for messages from the worker
+    worker.addEventListener('message', event => {
+      // The worker will always respond with JSON payloads, so we'll parse that
+      let data = JSON.parse(event.data)
+
+      // Memoize the value that's returned
+      let value = data.value
+
+      // Figure out what type of message this is
+      switch (data.type) {
+        // Update the progress of reading the file to a data URI
+        case 'progress-file':
+          progress[imageSource].file = value
+          updateProgress()
+          break
+
+        // Update the progress of loading the file
+        case 'progress-load':
+          progress[imageSource].load = value
+          updateProgress()
+          break
+
+        // We receive a result message when the file has been downloaded and read
+        // to a data URI
+        case 'result':
+          // Set the src of the img element so the image finally loads into the page
+          image.src = value
+
+          // Tell the worker it should close when appropriate
+          worker.postMessage('close')
+
+          // Log out how long the load took for benchmarking purposes
+          console.log('Loaded ' + imageSource + ';', 'Load took ' + (performance.now() - started) + 'ms')
+
+          window.totalLoadTime += performance.now() - started
+
+          break
+      }
+    })
+  }
+}
+
+document.querySelectorAll('#start').forEach(element => {
+  element.addEventListener('click', ({ target }) => {
+    const useWorker = Boolean(target.getAttribute('data-worker'))
+
+    if (useWorker) {
+      startWithWorker()
+    } else {
+      // Grab the current time from the performance API for high definition
+      // performance tracking
+      const useWorker = Boolean(target.getAttribute('data-worker'))
+      let started = performance.now()
+
+      images.forEach(imageElement => {
+        imageElement.addEventListener('load', () => {
+          // Log out how long the load took for benchmarking purposes
+          console.log('Loaded ' + imageElement.src + ';', 'Load took ' + (performance.now() - started) + 'ms')
+          window.totalLoadTime += performance.now() - started
+        })
+      })
+      startWithOutWorker()
     }
   })
-}
+})
